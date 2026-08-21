@@ -29,6 +29,8 @@ The architecture uses managed AWS services where possible to reduce operational 
 
 2. High-Level Architecture
 
+![AWS Trading Platform Architecture](./architecture.png)
+
 flowchart TB
 
     User[Clients / Trading Users]

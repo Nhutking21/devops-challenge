@@ -1,4 +1,3 @@
-
 # Problem 5: Fortify The Castle
 
 ## 1. Overview

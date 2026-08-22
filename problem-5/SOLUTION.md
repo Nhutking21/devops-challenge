@@ -218,7 +218,7 @@ If an application server is compromised, network restrictions reduce the attacke
 
 ---
 
-5. AWS WAF
+## 5. AWS WAF
 
 AWS WAF will be placed in front of the Application Load Balancer.
 
@@ -265,7 +265,7 @@ A trading platform is Internet-facing and therefore exposed to automated attacks
 
 ---
 
-6. DDoS Protection
+## 6. DDoS Protection
 
 AWS Shield will protect the public entry point.
 
@@ -293,7 +293,7 @@ For the initial design, standard protection is sufficient unless business requir
 
 ---
 
-7. Authentication
+## 7. Authentication
 
 Users must authenticate before accessing account and trading functionality.
 
@@ -319,7 +319,7 @@ Passwords and authentication tokens must never be written to logs.
 
 ---
 
-8. Multi-Factor Authentication
+## 8. Multi-Factor Authentication
 
 MFA should be required for sensitive operations.
 
@@ -347,7 +347,7 @@ Passwords alone are not sufficient protection for accounts controlling financial
 
 ---
 
-9. Authorization
+## 9. Authorization
 
 Authentication determines who the user is.
 
@@ -381,7 +381,7 @@ Execute operation
 
 ---
 
-10. Trading and Financial Operations
+## 10. Trading and Financial Operations
 
 Trading operations require stronger validation because they can have financial consequences.
 
@@ -428,7 +428,7 @@ All important business rules must be validated on the server.
 
 ---
 
-11. Idempotency
+## 11. Idempotency
 
 Financial operations should support idempotency where appropriate.
 
@@ -457,7 +457,7 @@ This is especially important for financial operations.
 
 ---
 
-12. Database Security
+## 12. Database Security
 
 The database will run inside private database subnets.
 
@@ -494,7 +494,7 @@ Database auditing where required
 
 ---
 
-13. Encryption at Rest
+## 13. Encryption at Rest
 
 Sensitive data will be encrypted at rest.
 
@@ -530,7 +530,7 @@ Encryption keys must never be hard-coded into application source code.
 
 ---
 
-14. Encryption in Transit
+## 14. Encryption in Transit
 
 All external traffic must use HTTPS/TLS.
 
@@ -552,7 +552,7 @@ TLS should also be used for internal connections where the threat model or compl
 
 ---
 
-15. Secrets Management
+## 15. Secrets Management
 
 Secrets must never be stored in:
 
@@ -581,7 +581,7 @@ Applications retrieve secrets at runtime using IAM permissions.
 
 ---
 
-16. IAM Least Privilege
+## 16. IAM Least Privilege
 
 Each workload should have its own IAM role.
 
@@ -615,7 +615,7 @@ If an application is compromised, least-privilege IAM limits the attacker's acce
 
 ---
 
-17. Administrative Access
+## 17. Administrative Access
 
 Production servers should not expose unrestricted SSH access to the Internet.
 
@@ -639,7 +639,7 @@ Privileged access should be logged and auditable.
 
 ---
 
-18. Audit Logging
+## 18. Audit Logging
 
 AWS CloudTrail will be enabled to record AWS API activity.
 
@@ -671,7 +671,7 @@ Administrative actions
 
 ---
 
-19. Protecting Logs
+## 19. Protecting Logs
 
 Logs are also sensitive.
 
@@ -700,7 +700,7 @@ Monitoring
 
 ---
 
-20. GuardDuty and Security Hub
+## 20. GuardDuty and Security Hub
 
 AWS GuardDuty will be enabled for threat detection.
 
@@ -733,7 +733,7 @@ Security Alerts
 
 ---
 
-21. AWS Config
+## 21. AWS Config
 
 AWS Config will be used to detect insecure configuration and configuration drift.
 
@@ -758,7 +758,7 @@ Security alert
 
 ---
 
-22. CI/CD Security
+## 22. CI/CD Security
 
 Security checks will be integrated into the CI/CD pipeline.
 
@@ -803,7 +803,7 @@ Critical vulnerabilities should block production deployment when appropriate.
 
 ---
 
-23. Container Security
+## 23. Container Security
 
 If containers are used, images should be stored in Amazon ECR.
 
@@ -825,7 +825,7 @@ Only trusted images should be deployed to production.
 
 ---
 
-24. Input Validation
+## 24. Input Validation
 
 All external input must be considered untrusted.
 
@@ -846,7 +846,7 @@ Database queries must use parameterized queries instead of constructing SQL stat
 
 ---
 
-25. Rate Limiting
+## 25. Rate Limiting
 
 Rate limiting should be applied at multiple layers.
 
@@ -884,7 +884,7 @@ Automated trading abuse
 
 ---
 
-26. Backup Security
+## 26. Backup Security
 
 Backups are also sensitive data.
 
@@ -917,7 +917,7 @@ Measure Recovery Time
 
 ---
 
-27. High Availability
+## 27. High Availability
 
 Security controls must not introduce unnecessary single points of failure.
 
@@ -943,7 +943,7 @@ This preserves the high-availability objective from Problem 1.
 
 ---
 
-28. What I Would Refuse To Ship Without
+## 28. What I Would Refuse To Ship Without
 
 The following are production blockers.
 
@@ -986,7 +986,7 @@ Production administrative access must use strong authentication and be auditable
 
 ---
 
-29. What I Would Deliberately Leave Out
+## 29. What I Would Deliberately Leave Out
 
 Not every security feature needs to be implemented immediately.
 
@@ -1055,9 +1055,9 @@ The additional operational complexity may create more risk than it removes at th
 
 ---
 
-30. Accepted Risks
+## 30. Accepted Risks
 
-Risk 1: Single Region
+### Risk 1: Single Region
 
 The initial architecture is multi-AZ but single-region.
 
@@ -1078,7 +1078,7 @@ This should be revisited when RTO/RPO requirements are defined.
 
 ---
 
-Risk 2: Basic WAF Rules Initially
+### Risk 2: Basic WAF Rules Initially
 
 Risk
 
@@ -1095,7 +1095,7 @@ Start with AWS managed rules and rate limiting, then tune based on real traffic.
 
 ---
 
-Risk 3: Advanced Threat Detection Deferred
+### Risk 3: Advanced Threat Detection Deferred
 
 Risk
 
@@ -1112,7 +1112,7 @@ Core controls such as authentication, authorization, network isolation, encrypti
 
 ---
 
-31. Information I Still Need
+## 31. Information I Still Need
 
 Some security decisions require additional business and technical information.
 
@@ -1202,7 +1202,7 @@ I would document the answers and update the architecture accordingly.
 
 ---
 
-32. Security Assumptions
+## 32. Security Assumptions
 
 Until the missing requirements are available, I assume:
 
@@ -1293,7 +1293,7 @@ Post-Incident Review
 
 ---
 
-34. Secret Rotation
+## 34. Secret Rotation
 
 If a credential is suspected to be compromised:
 
@@ -1319,7 +1319,7 @@ Secrets should not be manually copied between servers.
 
 ---
 
-35. Security Monitoring
+## 35. Security Monitoring
 
 I would create alerts for:
 
@@ -1340,7 +1340,7 @@ Centralized logs should be used so that attackers cannot easily hide activity by
 
 ---
 
-36. Security Principles
+## 36. Security Principles
 
 The final architecture follows several principles.
 
@@ -1394,7 +1394,7 @@ Other environments
 
 ---
 
-37. Summary of Architecture Changes
+## 37. Summary of Architecture Changes
 
 Problem 1 Component	Security Change	Purpose
 
@@ -1419,7 +1419,7 @@ Admin access	SSM + MFA	Protect privileged access
 
 ---
 
-38. Final Security Decision
+## 38. Final Security Decision
 
 The most important security changes are architectural boundaries rather than individual security products.
 
@@ -1468,7 +1468,7 @@ This means security is integrated into the architecture instead of being treated
 
 ---
 
-39. Conclusion
+## 39. Conclusion
 
 The highest security priorities for this trading platform are:
 

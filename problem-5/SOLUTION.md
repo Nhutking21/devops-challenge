@@ -1,4 +1,4 @@
-# Problem 5: Fortify The Castle
+u# Problem 5: Fortify The Castle
 
 ## 1. Overview
 
@@ -20,115 +20,11 @@ The main security priorities are:
 
 ## 2. Updated Secure Architecture
 
-The following diagram shows the security changes added to the original Problem 1 architecture.
+The following diagram shows the updated architecture from Problem 1 with security controls integrated directly into the design.
 
-Security-related additions are marked with `[SECURITY]`.
+Security additions and changes are highlighted in red.
 
-```mermaid
-flowchart TB
-
-    Users["Users / Trading Clients"]
-
-    Route53["Route 53"]
-
-    Shield["[SECURITY] AWS Shield"]
-    WAF["[SECURITY] AWS WAF"]
-
-    ALB["Application Load Balancer"]
-
-    subgraph VPC["AWS VPC"]
-
-        subgraph Public["Public Subnets"]
-            ALB
-        end
-
-        subgraph PrivateApp["Private Application Subnets"]
-            API1["Trading API"]
-            API2["Trading API"]
-            Worker["Order/Event Workers"]
-        end
-
-        subgraph PrivateData["Private Database Subnets"]
-            DB["RDS / Aurora"]
-            Redis["ElastiCache Redis"]
-        end
-
-        Queue["SQS / EventBridge"]
-    end
-
-    Auth["[SECURITY] Authentication / Identity Provider"]
-    Secrets["[SECURITY] AWS Secrets Manager"]
-    KMS["[SECURITY] AWS KMS"]
-    IAM["[SECURITY] IAM / Least Privilege"]
-    SG["[SECURITY] Security Groups"]
-
-    CloudTrail["[SECURITY] AWS CloudTrail"]
-    GuardDuty["[SECURITY] GuardDuty"]
-    Config["[SECURITY] AWS Config"]
-    SecurityHub["[SECURITY] Security Hub"]
-    Logs["[SECURITY] CloudWatch / Centralized Logs"]
-
-    CICD["CI/CD Pipeline"]
-    ECR["Amazon ECR"]
-
-    Users --> Route53
-    Route53 --> Shield
-    Shield --> WAF
-    WAF --> ALB
-
-    ALB --> API1
-    ALB --> API2
-
-    Users -. Authentication .-> Auth
-    Auth -. Access Token .-> API1
-    Auth -. Access Token .-> API2
-
-    API1 --> Worker
-    API2 --> Worker
-
-    API1 --> DB
-    API2 --> DB
-
-    API1 --> Redis
-    API2 --> Redis
-
-    Worker --> Queue
-    Worker --> DB
-
-    API1 -. Secrets .-> Secrets
-    API2 -. Secrets .-> Secrets
-    Worker -. Secrets .-> Secrets
-
-    Secrets --> KMS
-    DB --> KMS
-    Redis --> KMS
-
-    IAM -. IAM Policies .-> API1
-    IAM -. IAM Policies .-> API2
-    IAM -. IAM Policies .-> Worker
-    IAM -. IAM Policies .-> Secrets
-
-    SG -. Network Isolation .-> ALB
-    SG -. Network Isolation .-> API1
-    SG -. Network Isolation .-> API2
-    SG -. Network Isolation .-> DB
-    SG -. Network Isolation .-> Redis
-
-    ALB --> Logs
-    API1 --> Logs
-    API2 --> Logs
-    DB --> Logs
-
-    CloudTrail --> SecurityHub
-    GuardDuty --> SecurityHub
-    Config --> SecurityHub
-    SecurityHub --> Logs
-
-    CICD --> ECR
-    ECR --> API1
-    ECR --> API2
-```
-
+![Problem 5 Secure Architecture](architecture.png)
 ---
 
 ## 3. Network Security

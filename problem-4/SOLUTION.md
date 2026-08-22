@@ -1,6 +1,6 @@
-Problem 4 — Ship It Twice
+# Problem 4 — Ship It Twice
 
-1. Overview
+## 1. Overview
 
 This solution implements production-oriented CI/CD pipelines for two independent applications:
 
@@ -24,46 +24,45 @@ The workflows are:
 .github/workflows/backend.yml
 .github/workflows/frontend.yml
 
----
 
-2. Assumptions
+## 2. Assumptions
 
-2.1 Repository structure
+### 2.1 Repository Structure
 
-I assume the repository contains the applications in the following structure:
+The provided Problem 4 repository does not contain the actual backend and
+frontend application source code.
+
+Therefore, the workflows are implemented against the expected application
+structure:
 
 backend/
 frontend/
-.github/
-└── workflows/
-    ├── backend.yml
-    └── frontend.yml
 
-The backend is assumed to be a Node.js HTTP API with a "package.json".
+The backend is assumed to contain a Node.js application with `package.json`.
 
-The frontend is assumed to be a Node.js-based static SPA.
-
-The frontend production build is assumed to be generated in:
+The frontend is assumed to contain a Node.js-based static SPA whose
+production build is generated in:
 
 frontend/dist
 
-If the actual frontend framework produces a different output directory, the workflow should be adjusted accordingly.
+If the actual frontend framework produces a different output directory,
+the workflow should be adjusted accordingly.
 
----
+No real AWS account is required for this assessment.
 
-2.2 Production branch
 
-The "main" branch is treated as the production branch.
+### 2.2 Production Branch
+
+The `main` branch is treated as the production branch.
 
 Pull requests run validation only.
 
-Production deployment occurs only after a successful push to "main".
+Production deployment occurs only after a successful push to `main`.
 
 This prevents feature branches from directly deploying to production.
 
----
 
-2.3 Backend deployment
+### 2.3 Backend Deployment
 
 The backend runs on an AWS EC2 instance.
 
@@ -73,13 +72,13 @@ The EC2 instance is assumed to already have:
 - the backend service configured;
 - AWS Systems Manager Agent installed;
 - an appropriate IAM instance role;
-- a health endpoint such as "/health".
+- a health endpoint such as `/health`.
 
-The CI/CD pipeline is responsible for delivering and activating a new application release.
+The CI/CD pipeline is responsible for delivering and activating a new
+application release.
 
----
 
-2.4 Frontend deployment
+### 2.4 Frontend Deployment
 
 The frontend is a static SPA.
 
@@ -87,13 +86,14 @@ It does not require a Node.js server at runtime.
 
 The production build is uploaded directly to an S3 bucket.
 
-For a real production system, I would normally put Amazon CloudFront in front of S3 to provide:
+For a real production system, I would normally put Amazon CloudFront in
+front of S3 to provide:
 
 - HTTPS;
 - CDN caching;
 - lower latency;
 - custom domain support;
-- better control over caching and invalidation.
+- better control over caching.
 
 CloudFront is not required for the core CI/CD implementation.
 

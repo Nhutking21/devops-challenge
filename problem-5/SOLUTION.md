@@ -18,7 +18,7 @@ The main security priorities are:
 
 ---
 
-# 2. Updated Secure Architecture
+## 2. Updated Secure Architecture
 
 The following diagram shows the security changes added to the original Problem 1 architecture.
 
@@ -131,7 +131,7 @@ flowchart TB
 
 ---
 
-3. Network Security
+## 3. Network Security
 
 3.1 VPC Isolation
 
@@ -178,7 +178,7 @@ Accidental public exposure
 
 ---
 
-4. Security Groups
+## 4. Security Groups
 
 Security Groups will follow the principle of least privilege.
 

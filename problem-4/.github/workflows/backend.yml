@@ -1,1 +1,155 @@
 
+name: Backend CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-southeast-1
+  ARTIFACT_BUCKET: ${{ secrets.BACKEND_ARTIFACT_BUCKET }}
+  BACKEND_INSTANCE_ID: ${{ secrets.BACKEND_INSTANCE_ID }}
+
+jobs:
+  test:
+    name: Test Backend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint --if-present
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build application
+        run: npm run build --if-present
+
+  deploy:
+    name: Deploy Backend
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install production dependencies
+        working-directory: backend
+        run: npm ci --omit=dev
+
+      - name: Create deployment package
+        run: |
+          tar \
+            --exclude=node_modules/.cache \
+            -czf backend-${GITHUB_SHA}.tar.gz \
+            backend
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload artifact to S3
+        run: |
+          aws s3 cp \
+            backend-${GITHUB_SHA}.tar.gz \
+            s3://${ARTIFACT_BUCKET}/backend/${GITHUB_SHA}/backend.tar.gz
+
+      - name: Deploy to EC2 using AWS Systems Manager
+        id: deploy
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${BACKEND_INSTANCE_ID}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy backend ${GITHUB_SHA}" \
+            --parameters 'commands=[
+              "set -e",
+              "mkdir -p /opt/backend/releases/'"${GITHUB_SHA}"'",
+              "aws s3 cp s3://'"${ARTIFACT_BUCKET}"'/backend/'"${GITHUB_SHA}"'/backend.tar.gz /tmp/backend.tar.gz",
+              "tar -xzf /tmp/backend.tar.gz -C /opt/backend/releases/'"${GITHUB_SHA}"'",
+              "ln -sfn /opt/backend/releases/'"${GITHUB_SHA}"'/backend /opt/backend/current",
+              "sudo systemctl restart backend",
+              "sleep 5",
+              "curl --fail --max-time 10 http://localhost:3000/health"
+            ]' \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo "COMMAND_ID=${COMMAND_ID}" >> "$GITHUB_ENV"
+
+      - name: Wait for deployment
+        run: |
+          for i in {1..30}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$BACKEND_INSTANCE_ID" \
+              --query 'Status' \
+              --output text)
+
+            echo "Deployment status: $STATUS"
+
+            case "$STATUS" in
+              Success)
+                exit 0
+                ;;
+              Failed|Cancelled|TimedOut)
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id "$BACKEND_INSTANCE_ID"
+                exit 1
+                ;;
+            esac
+
+            sleep 5
+          done
+
+          echo "Deployment timed out"
+          exit 1

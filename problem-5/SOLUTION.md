@@ -127,7 +127,7 @@ flowchart TB
     CICD --> ECR
     ECR --> API1
     ECR --> API2
-
+```
 
 ---
 
